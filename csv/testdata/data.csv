@@ -1,4 +1,4 @@
 name,age,dob,city,has_pet
 Harry,"50",23/08/1965,Melbourne,true
-"Robert "Bob" Thompson",69,31/12/1999,Sydney,false
+"Robert ""Bob"" Thompson",69,31/12/1999,Sydney,false
 Tom,2,28/02/1993,Brisbane,true

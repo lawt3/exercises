@@ -1,12 +1,28 @@
 package csv
 
 import (
-	"fmt"
+	"encoding/csv"
+	"os"
 	"testing"
 )
 
-// TODO: move test data in here? it's not that big
+func TestUnmarshal(t *testing.T) {
+	f, err := os.Open("testdata/data.csv")
+	if err != nil {
+		t.Fatal("Unable to read data file", err)
+	}
+	defer func(f *os.File) {
+		err := f.Close()
+		if err != nil {
+			t.Fatal("Unable to close data file", err)
+		}
+	}(f)
 
-func Test(t *testing.T) {
-	fmt.Println("hello world")
+	r := csv.NewReader(f)
+	records, err := r.ReadAll()
+	if err != nil {
+		t.Fatal("Unable to read records", err)
+	}
+
+	t.Log(records)
 }

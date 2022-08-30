@@ -49,5 +49,3 @@ You could just pass a `map[string]interface{}` to `json.Marshal` and `json.Unmar
 
 ## Usage
 This package is follows the design of `encoding/json` and provides two functions: `csv.Marshal` and `csv.Unmarshal`.
-
-`csv.Marshal` takes a 
