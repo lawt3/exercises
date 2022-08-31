@@ -49,3 +49,12 @@ You could just pass a `map[string]interface{}` to `json.Marshal` and `json.Unmar
 
 ## Usage
 This package is follows the design of `encoding/json` and provides two functions: `csv.Marshal` and `csv.Unmarshal`.
+```Go
+type Person struct {
+    FirstName string `csv:"first_name"`
+    LastName  string `csv:"last_name"`
+    HasPet    bool   `csv:"has_pet"` 
+}
+func Unmarshal(data [][]string, structs []Person) error
+func Marshal(structs []Person) ([][]string, error)
+```
