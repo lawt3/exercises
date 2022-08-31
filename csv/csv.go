@@ -8,7 +8,7 @@ import (
 )
 
 // Unmarshal maps the data in a slice of slice of strings into a slice of structs.
-// The first row is assumed to be the header with the column names
+// The first row is assumed to be the header with the column names.
 func Unmarshal(data [][]string, s any) error {
 	sliceValPtr := reflect.ValueOf(s)
 	if sliceValPtr.Kind() != reflect.Pointer {
@@ -80,4 +80,69 @@ func unmarshalOne(record []string, dataCol map[string]int, vv reflect.Value) err
 	}
 
 	return nil
+}
+
+// Marshal maps a slice of structs to a slice of slice of strings.
+// The first row written is the header with the column names.
+func Marshal(s any) ([][]string, error) {
+	sliceVal := reflect.ValueOf(s)
+	if sliceVal.Kind() != reflect.Slice {
+		return nil, errors.New("must be a slice of structs")
+	}
+	structType := sliceVal.Type().Elem()
+	if structType.Kind() != reflect.Struct {
+		return nil, errors.New("must be a slice of structs")
+	}
+
+	var out [][]string
+	header := marshalHeader(structType)
+	out = append(out, header)
+
+	for i := 0; i < sliceVal.Len(); i++ {
+		record, err := marshalOne(sliceVal.Index(i))
+		if err != nil {
+			return nil, err
+		}
+		out = append(out, record)
+	}
+
+	return out, nil
+}
+
+func marshalHeader(vt reflect.Type) []string {
+	var header []string
+	for i := 0; i < vt.NumField(); i++ {
+		field := vt.Field(i)
+		if tag, ok := field.Tag.Lookup("csv"); ok {
+			header = append(header, tag)
+		}
+	}
+
+	return header
+}
+
+func marshalOne(vv reflect.Value) ([]string, error) {
+	var record []string
+	vt := vv.Type()
+	for i := 0; i < vv.NumField(); i++ {
+		if _, ok := vt.Field(i).Tag.Lookup("csv"); !ok {
+			continue
+		}
+
+		fieldVal := vv.Field(i)
+		switch fieldVal.Kind() {
+		case reflect.Int, reflect.Int8, reflect.Int16, reflect.Int32, reflect.Int64:
+			record = append(record, strconv.FormatInt(fieldVal.Int(), 10))
+		case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
+			record = append(record, strconv.FormatUint(fieldVal.Uint(), 10))
+		case reflect.String:
+			record = append(record, fieldVal.String())
+		case reflect.Bool:
+			record = append(record, strconv.FormatBool(fieldVal.Bool()))
+		default:
+			return nil, fmt.Errorf("cannot handle field of kind %v", fieldVal.Kind())
+		}
+	}
+
+	return record, nil
 }
