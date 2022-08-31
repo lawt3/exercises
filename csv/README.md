@@ -55,6 +55,7 @@ type Person struct {
     LastName  string `csv:"last_name"`
     HasPet    bool   `csv:"has_pet"` 
 }
+
 func Unmarshal(data [][]string, structs []Person) error
 func Marshal(structs []Person) ([][]string, error)
 ```
